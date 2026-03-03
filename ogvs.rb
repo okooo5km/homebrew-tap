@@ -5,21 +5,21 @@
 class Ogvs < Formula
   desc "Go implementation of SVGO — the SVG optimizer"
   homepage "https://github.com/okooo5km/ogvs"
-  version "0.1.0"
+  version "0.1.1"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.0/ogvs_0.1.0_darwin_amd64.tar.gz"
-      sha256 "af22d61c86c03708f1731a2730a4d671cc32aa5b5dcd09574eb588b6eddde731"
+      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.1/ogvs_0.1.1_darwin_amd64.tar.gz"
+      sha256 "b0a8578378205a32c4526cf8f9edfb2be32f2d82f71fc7dd1833e0cb7bcca05b"
 
       define_method(:install) do
         bin.install "ogvs"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.0/ogvs_0.1.0_darwin_arm64.tar.gz"
-      sha256 "e4f3943ec8c64ba175963f36adac4df9ef0f4d4fddb029b91cfb10ba425b8666"
+      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.1/ogvs_0.1.1_darwin_arm64.tar.gz"
+      sha256 "a5d85d24d77adb21cc60cbf001b162f86db659e928b709ca3473590795e48d25"
 
       define_method(:install) do
         bin.install "ogvs"
@@ -29,15 +29,15 @@ class Ogvs < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.0/ogvs_0.1.0_linux_amd64.tar.gz"
-      sha256 "103fb37d70215c12b42186476492958b0d2dcbf7655b7020e9af80a77097254d"
+      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.1/ogvs_0.1.1_linux_amd64.tar.gz"
+      sha256 "c89bc471268cfad69e8275a36ed592ae4dcce972b4ff493ee45d1e5418675f9c"
       define_method(:install) do
         bin.install "ogvs"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.0/ogvs_0.1.0_linux_arm64.tar.gz"
-      sha256 "e562be627c781ca897ba1985c58d3d689ca46470740347739944ef9df27c7539"
+      url "https://github.com/okooo5km/ogvs/releases/download/v0.1.1/ogvs_0.1.1_linux_arm64.tar.gz"
+      sha256 "9e84010b08a2e5103309101d3f6dbf6c897fc5e6fb3512348a441170a90034fe"
       define_method(:install) do
         bin.install "ogvs"
       end
