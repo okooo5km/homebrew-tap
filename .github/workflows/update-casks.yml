@@ -1,0 +1,94 @@
+name: Update Casks
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: hipixel
+            appcast_url: "https://releases.5km.tech/hipixel/appcast.xml"
+            download_url_template: "https://releases.5km.tech/hipixel/HiPixel-v{version}.dmg"
+            cask_file: "Casks/hipixel.rb"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get latest version from appcast
+        id: appcast
+        run: |
+          # Parse Sparkle appcast for latest version
+          appcast_xml=$(curl -s "${{ matrix.appcast_url }}")
+
+          # Extract the latest short version string
+          latest_version=$(echo "$appcast_xml" | xmllint --xpath 'string(//rss/channel/item[1]/enclosure/@sparkle:shortVersionString)' - 2>/dev/null)
+
+          if [ -z "$latest_version" ]; then
+            # Fallback: try without namespace
+            latest_version=$(echo "$appcast_xml" | grep -o 'sparkle:shortVersionString="[^"]*"' | head -1 | sed 's/.*="\([^"]*\)"/\1/')
+          fi
+
+          echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
+          echo "Latest version: $latest_version"
+
+      - name: Get current version
+        id: current
+        run: |
+          current_version=$(grep -m1 'version "' "${{ matrix.cask_file }}" | sed 's/.*version "\(.*\)"/\1/')
+          echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
+          echo "Current version: $current_version"
+
+      - name: Check if update is needed
+        id: check
+        run: |
+          if [ "${{ steps.appcast.outputs.latest_version }}" = "${{ steps.current.outputs.current_version }}" ]; then
+            echo "needs_update=false" >> "$GITHUB_OUTPUT"
+            echo "Already up to date"
+          else
+            echo "needs_update=true" >> "$GITHUB_OUTPUT"
+            echo "Update available: ${{ steps.current.outputs.current_version }} -> ${{ steps.appcast.outputs.latest_version }}"
+          fi
+
+      - name: Download and compute sha256
+        if: steps.check.outputs.needs_update == 'true'
+        id: sha
+        run: |
+          version="${{ steps.appcast.outputs.latest_version }}"
+          download_url=$(echo "${{ matrix.download_url_template }}" | sed "s/{version}/$version/g")
+          echo "Downloading: $download_url"
+          curl -L -o /tmp/download.dmg "$download_url"
+          sha256=$(shasum -a 256 /tmp/download.dmg | awk '{print $1}')
+          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+          echo "SHA256: $sha256"
+          rm -f /tmp/download.dmg
+
+      - name: Update cask file
+        if: steps.check.outputs.needs_update == 'true'
+        run: |
+          version="${{ steps.appcast.outputs.latest_version }}"
+          sha256="${{ steps.sha.outputs.sha256 }}"
+          cask_file="${{ matrix.cask_file }}"
+
+          # Update version
+          sed -i '' "s/version \".*\"/version \"$version\"/" "$cask_file"
+          # Update sha256
+          sed -i '' "s/sha256 \".*\"/sha256 \"$sha256\"/" "$cask_file"
+
+          echo "Updated $cask_file to version $version"
+          cat "$cask_file"
+
+      - name: Commit and push
+        if: steps.check.outputs.needs_update == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "${{ matrix.cask_file }}"
+          git commit -m "Update ${{ matrix.name }} to ${{ steps.appcast.outputs.latest_version }}"
+          git push
