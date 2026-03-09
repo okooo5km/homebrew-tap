@@ -5,6 +5,9 @@ on:
     - cron: "0 */6 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: macos-latest
@@ -27,12 +30,17 @@ jobs:
           # Parse Sparkle appcast for latest version
           appcast_xml=$(curl -s "${{ matrix.appcast_url }}")
 
-          # Extract the latest short version string
-          latest_version=$(echo "$appcast_xml" | xmllint --xpath 'string(//rss/channel/item[1]/enclosure/@sparkle:shortVersionString)' - 2>/dev/null)
+          # Extract the first sparkle:shortVersionString element value
+          latest_version=$(echo "$appcast_xml" | grep -o '<sparkle:shortVersionString>[^<]*</sparkle:shortVersionString>' | head -1 | sed 's/<[^>]*>//g')
 
           if [ -z "$latest_version" ]; then
-            # Fallback: try without namespace
+            # Fallback: try as attribute
             latest_version=$(echo "$appcast_xml" | grep -o 'sparkle:shortVersionString="[^"]*"' | head -1 | sed 's/.*="\([^"]*\)"/\1/')
+          fi
+
+          if [ -z "$latest_version" ]; then
+            echo "::error::Failed to extract version from appcast"
+            exit 1
           fi
 
           echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
