@@ -11,92 +11,62 @@ permissions:
 jobs:
   update:
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: hipixel
-            appcast_url: "https://releases.5km.tech/hipixel/appcast.xml"
-            download_url_template: "https://releases.5km.tech/hipixel/HiPixel-v{version}.dmg"
-            cask_file: "Casks/hipixel.rb"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get latest version from appcast
-        id: appcast
+      - name: Register tap with Homebrew
         run: |
-          # Parse Sparkle appcast for latest version
-          appcast_xml=$(curl -s "${{ matrix.appcast_url }}")
+          tap_path="$(brew --repository)/Library/Taps/okooo5km/homebrew-tap"
+          mkdir -p "$(dirname "$tap_path")"
+          ln -s "$GITHUB_WORKSPACE" "$tap_path"
 
-          # Extract the first sparkle:shortVersionString element value
-          latest_version=$(echo "$appcast_xml" | grep -o '<sparkle:shortVersionString>[^<]*</sparkle:shortVersionString>' | head -1 | sed 's/<[^>]*>//g')
-
-          if [ -z "$latest_version" ]; then
-            # Fallback: try as attribute
-            latest_version=$(echo "$appcast_xml" | grep -o 'sparkle:shortVersionString="[^"]*"' | head -1 | sed 's/.*="\([^"]*\)"/\1/')
-          fi
-
-          if [ -z "$latest_version" ]; then
-            echo "::error::Failed to extract version from appcast"
-            exit 1
-          fi
-
-          echo "latest_version=$latest_version" >> "$GITHUB_OUTPUT"
-          echo "Latest version: $latest_version"
-
-      - name: Get current version
-        id: current
+      - name: Check for outdated casks
+        id: livecheck
         run: |
-          current_version=$(grep -m1 'version "' "${{ matrix.cask_file }}" | sed 's/.*version "\(.*\)"/\1/')
-          echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
-          echo "Current version: $current_version"
+          brew livecheck --cask --tap okooo5km/tap --newer-only --json 2>/dev/null > /tmp/livecheck.json || echo "[]" > /tmp/livecheck.json
+          cat /tmp/livecheck.json
+          count=$(jq length /tmp/livecheck.json)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
 
-      - name: Check if update is needed
-        id: check
-        run: |
-          if [ "${{ steps.appcast.outputs.latest_version }}" = "${{ steps.current.outputs.current_version }}" ]; then
-            echo "needs_update=false" >> "$GITHUB_OUTPUT"
-            echo "Already up to date"
-          else
-            echo "needs_update=true" >> "$GITHUB_OUTPUT"
-            echo "Update available: ${{ steps.current.outputs.current_version }} -> ${{ steps.appcast.outputs.latest_version }}"
-          fi
-
-      - name: Download and compute sha256
-        if: steps.check.outputs.needs_update == 'true'
-        id: sha
-        run: |
-          version="${{ steps.appcast.outputs.latest_version }}"
-          download_url=$(echo "${{ matrix.download_url_template }}" | sed "s/{version}/$version/g")
-          echo "Downloading: $download_url"
-          curl -L -o /tmp/download.dmg "$download_url"
-          sha256=$(shasum -a 256 /tmp/download.dmg | awk '{print $1}')
-          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
-          echo "SHA256: $sha256"
-          rm -f /tmp/download.dmg
-
-      - name: Update cask file
-        if: steps.check.outputs.needs_update == 'true'
-        run: |
-          version="${{ steps.appcast.outputs.latest_version }}"
-          sha256="${{ steps.sha.outputs.sha256 }}"
-          cask_file="${{ matrix.cask_file }}"
-
-          # Update version
-          sed -i '' "s/version \".*\"/version \"$version\"/" "$cask_file"
-          # Update sha256
-          sed -i '' "s/sha256 \".*\"/sha256 \"$sha256\"/" "$cask_file"
-
-          echo "Updated $cask_file to version $version"
-          cat "$cask_file"
-
-      - name: Commit and push
-        if: steps.check.outputs.needs_update == 'true'
+      - name: Update outdated casks
+        if: steps.livecheck.outputs.count != '0'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "${{ matrix.cask_file }}"
-          git commit -m "Update ${{ matrix.name }} to ${{ steps.appcast.outputs.latest_version }}"
+
+          count=$(jq length /tmp/livecheck.json)
+          for i in $(seq 0 $((count - 1))); do
+            cask_name=$(jq -r ".[$i].cask" /tmp/livecheck.json)
+            new_version=$(jq -r ".[$i].version.latest" /tmp/livecheck.json)
+            cask_file="Casks/${cask_name}.rb"
+
+            if [ ! -f "$cask_file" ]; then
+              echo "::warning::Cask file not found: $cask_file"
+              continue
+            fi
+
+            echo "Updating $cask_name to $new_version"
+
+            # Extract url template from cask file and substitute version
+            url_template=$(grep -m1 'url "' "$cask_file" | sed 's/.*url "\(.*\)"/\1/' | sed "s/#{version}/$new_version/g")
+
+            echo "Downloading: $url_template"
+            curl -L -o /tmp/download.dmg "$url_template"
+            new_sha256=$(shasum -a 256 /tmp/download.dmg | awk '{print $1}')
+            rm -f /tmp/download.dmg
+            echo "SHA256: $new_sha256"
+
+            # Update version and sha256 in cask file
+            sed -i '' "s/version \".*\"/version \"$new_version\"/" "$cask_file"
+            sed -i '' "s/sha256 \".*\"/sha256 \"$new_sha256\"/" "$cask_file"
+
+            echo "Updated $cask_file:"
+            cat "$cask_file"
+
+            git add "$cask_file"
+            git commit -m "Update $cask_name to $new_version"
+          done
+
           git push
