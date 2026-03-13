@@ -1,6 +1,6 @@
 cask "hipixel" do
-  version "0.4.2"
-  sha256 "2248952e002237e3eb30dca4cb08553fa7dbe230a4c2cf3ef43f05daeee73a55"
+  version "0.4.3"
+  sha256 "f8f21bc0b50d646a16ef3ac4dd5cd7454f734170dec0fee92b1125c05ce24a8d"
 
   url "https://releases.5km.tech/hipixel/HiPixel-v#{version}.dmg"
   name "HiPixel"
