@@ -1,6 +1,6 @@
 cask "orchard" do
-  version "0.4.1"
-  sha256 "999dda645e34750be72d8e17c12a320dab72e87e053fbd5405653699b867643b"
+  version "0.5.0"
+  sha256 "df2529364a9a6cf6cbbb6115b6585f89466c8db2a721eaca0c2657d4fab92e16"
 
   url "https://releases.5km.tech/orchard/Orchard-#{version}.dmg"
   name "Orchard"
