@@ -1,8 +1,8 @@
 class Bm < Formula
   desc "Render Mermaid diagrams as beautiful SVG/PNG/ASCII from the command line"
   homepage "https://github.com/okooo5km/beautiful-mermaid-cli"
-  url "https://registry.npmjs.org/beautiful-mermaid-cli/-/beautiful-mermaid-cli-0.2.3.tgz"
-  sha256 "f9a14f6eec72947099c630b70522e47f0fcac341999306e6f0d881bf0ee9e7f6"
+  url "https://registry.npmjs.org/beautiful-mermaid-cli/-/beautiful-mermaid-cli-0.2.4.tgz"
+  sha256 "a8d193bb0be941aa565ea4c64d1eead9f1220eafbeddf17d278947c4420283af"
   license "MIT"
 
   depends_on "node"
