@@ -1,9 +1,9 @@
 class KeygenCli < Formula
   desc "AI-friendly CLI for keygen.sh — manage products, policies, licenses, machines, releases"
   homepage "https://github.com/okooo5km/keygen-cli"
-  url "https://github.com/okooo5km/keygen-cli/releases/download/v0.2.0/keygen-cli_0.2.0_darwin_universal.tar.gz"
-  sha256 "23ad31b505136dca5fef79b2d8eeaee0daf04b49146a4eb936192f8263f3de08"
-  version "0.2.0"
+  url "https://github.com/okooo5km/keygen-cli/releases/download/v0.3.0/keygen-cli_0.3.0_darwin_universal.tar.gz"
+  sha256 "ea2ad515878c58b8898684b1db6389892d6a547a23f6e8be1a654f1aee8e7783"
+  version "0.3.0"
   license "MIT"
 
   def install
