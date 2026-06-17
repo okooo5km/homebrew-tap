@@ -20,6 +20,8 @@ cask "zipic" do
 
   zap trash: [
     "~/Library/Application Support/studio.5km.zipic",
+    "~/Library/Application Support/zipic",
+    "~/Library/Caches/studio.5km.zipic",
     "~/Library/Preferences/studio.5km.zipic.plist",
     "~/Library/Saved Application State/studio.5km.zipic.savedState",
     "~/Library/zipic",
