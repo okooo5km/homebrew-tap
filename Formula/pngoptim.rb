@@ -1,9 +1,9 @@
 class Pngoptim < Formula
   desc "Fast PNG quantization CLI tool — a Rust alternative to pngquant"
   homepage "https://github.com/okooo5km/pngoptim"
-  url "https://github.com/okooo5km/pngoptim/releases/download/v0.5.5/pngoptim_0.5.5_darwin_universal.tar.gz"
-  sha256 "ffabaaa9861f051a68297bd6eb11b4b1fa954292257a75211ff6685bb3e42ef0"
-  version "0.5.5"
+  url "https://github.com/okooo5km/pngoptim/releases/download/v0.5.6/pngoptim_0.5.6_darwin_universal.tar.gz"
+  sha256 "db994d2f0e6fb42eda23598e1a6692c6bb4983a0eae72a88bb871641e837b7b9"
+  version "0.5.6"
   license "MIT"
 
   def install
