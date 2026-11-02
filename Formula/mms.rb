@@ -5,21 +5,21 @@
 class Mms < Formula
   desc "A high-performance Go implementation of a knowledge graph memory server for MCP"
   homepage "https://github.com/okooo5km/memory-mcp-server-go"
-  version "0.6.0"
+  version "0.6.1"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.0/mms_0.6.0_darwin_amd64.tar.gz"
-      sha256 "ff513c9a351d76db3c2781e90332d3a079e6c254f022e656bf552686491c4568"
+      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.1/mms_0.6.1_darwin_amd64.tar.gz"
+      sha256 "d197bb07092bf89460c326e76320405bf29f505a9dd746ede6a30b3a3f2e120e"
 
       define_method(:install) do
         bin.install "mms"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.0/mms_0.6.0_darwin_arm64.tar.gz"
-      sha256 "7c8864f042c44b0ad183995d867cafffcc19033c740b89cc4318eacc10cb3b4d"
+      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.1/mms_0.6.1_darwin_arm64.tar.gz"
+      sha256 "32ae9780f1caf09b7aedb5d1f320ddb4e82269fa9d7ae849f861b4b2195938b3"
 
       define_method(:install) do
         bin.install "mms"
@@ -29,15 +29,15 @@ class Mms < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.0/mms_0.6.0_linux_amd64.tar.gz"
-      sha256 "75a4ea4e7c7b816f1caf3e45df36b30a268d7f2b8eb241bf42619a3ee0726639"
+      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.1/mms_0.6.1_linux_amd64.tar.gz"
+      sha256 "811b580a6b9495fa3159ade969e1956cae00220c35d4ff505386c84d67e520c2"
       define_method(:install) do
         bin.install "mms"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.0/mms_0.6.0_linux_arm64.tar.gz"
-      sha256 "29c6e8eec2b5c24772cf117512a44e84186da3c89055e62850a933b5a35fad04"
+      url "https://github.com/okooo5km/memory-mcp-server-go/releases/download/v0.6.1/mms_0.6.1_linux_arm64.tar.gz"
+      sha256 "da134b579cbed8ea18c15b786ef2c3942d51df42db38165245175cbe976b39a1"
       define_method(:install) do
         bin.install "mms"
       end
